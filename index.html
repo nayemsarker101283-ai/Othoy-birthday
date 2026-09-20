@@ -29,12 +29,17 @@
 </head>
 <body>
 
+  <!-- BACKGROUND AUDIO -->
+  <audio id="bg-music" loop>
+    <source src="./bg-music.mp3" type="audio/mpeg">
+  </audio>
+
   <div id="terminal-overlay">
     <div id="typed-text" class="line"></div>
     <button id="start-btn">Click to View Experience 🎂</button>
   </div>
 
-  <div id="instruction">Touch & drag to rotate scene</div>
+  <div id="instruction">Click Candle to Blow | Click Card to Zoom | Drag to Rotate</div>
   <div id="canvas-container"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -53,6 +58,7 @@
     let lineIdx = 0, charIdx = 0;
     const typedTextEl = document.getElementById("typed-text");
     const startBtn = document.getElementById("start-btn");
+    const bgMusic = document.getElementById("bg-music");
 
     function typeLine() {
       if (lineIdx < lines.length) {
@@ -105,89 +111,55 @@
     table.position.y = -0.1;
     scene.add(table);
 
-    // 5. DECORATED 3D BIRTHDAY CAKE
+    const textureLoader = new THREE.TextureLoader();
+
+    // 5. PHOTO PRINTED CAKE
     const cakeGroup = new THREE.Group();
 
-    // A. Cake Plate
     const plateGeo = new THREE.CylinderGeometry(2.1, 1.9, 0.08, 32);
-    const plateMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.2, roughness: 0.1 });
+    const plateMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 });
     const plate = new THREE.Mesh(plateGeo, plateMat);
     plate.position.y = 0.04;
     cakeGroup.add(plate);
 
-    // B. Bottom Tier (Pink Layer)
-    const bottomTierGeo = new THREE.CylinderGeometry(1.6, 1.6, 0.7, 32);
-    const bottomTierMat = new THREE.MeshStandardMaterial({ color: 0xffb6c1, roughness: 0.3 });
-    const bottomTier = new THREE.Mesh(bottomTierGeo, bottomTierMat);
-    bottomTier.position.y = 0.42;
-    cakeGroup.add(bottomTier);
+    const cakeBodyGeo = new THREE.CylinderGeometry(1.6, 1.6, 0.8, 32);
+    const cakeSideMat = new THREE.MeshStandardMaterial({ color: 0xffe4e1, roughness: 0.3 });
+    const cakeTopTexture = textureLoader.load('./photo1.jpg');
+    const cakeTopMat = new THREE.MeshBasicMaterial({ map: cakeTopTexture });
 
-    // Bottom Frosting Pearls
-    for (let i = 0; i < 18; i++) {
-      const angle = (i / 18) * Math.PI * 2;
+    const cakeMaterials = [cakeSideMat, cakeTopMat, cakeSideMat];
+    const cake = new THREE.Mesh(cakeBodyGeo, cakeMaterials);
+    cake.position.y = 0.48;
+    cakeGroup.add(cake);
+
+    for (let i = 0; i < 20; i++) {
+      const angle = (i / 20) * Math.PI * 2;
       const pearl = new THREE.Mesh(
         new THREE.SphereGeometry(0.1, 16, 16),
         new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 })
       );
-      pearl.position.set(Math.cos(angle) * 1.6, 0.12, Math.sin(angle) * 1.6);
+      pearl.position.set(Math.cos(angle) * 1.55, 0.88, Math.sin(angle) * 1.55);
       cakeGroup.add(pearl);
     }
 
-    // C. Top Tier (Cream Layer)
-    const topTierGeo = new THREE.CylinderGeometry(1.1, 1.1, 0.6, 32);
-    const topTierMat = new THREE.MeshStandardMaterial({ color: 0xfff0f5, roughness: 0.3 });
-    const topTier = new THREE.Mesh(topTierGeo, topTierMat);
-    topTier.position.y = 1.05;
-    cakeGroup.add(topTier);
+    const candle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.04, 0.04, 0.6, 16),
+      new THREE.MeshStandardMaterial({ color: 0xff3366 })
+    );
+    candle.position.set(0, 1.18, -0.9);
+    cakeGroup.add(candle);
 
-    // Middle Frosting Border
-    for (let i = 0; i < 14; i++) {
-      const angle = (i / 14) * Math.PI * 2;
-      const pearl = new THREE.Mesh(
-        new THREE.SphereGeometry(0.08, 16, 16),
-        new THREE.MeshStandardMaterial({ color: 0xff69b4, roughness: 0.2 })
-      );
-      pearl.position.set(Math.cos(angle) * 1.1, 0.77, Math.sin(angle) * 1.1);
-      cakeGroup.add(pearl);
-    }
-
-    // D. Strawberries / Cherries on Top
-    for (let i = 0; i < 6; i++) {
-      const angle = (i / 6) * Math.PI * 2;
-      const cherry = new THREE.Mesh(
-        new THREE.SphereGeometry(0.12, 16, 16),
-        new THREE.MeshStandardMaterial({ color: 0xd81b60, roughness: 0.1 })
-      );
-      cherry.position.set(Math.cos(angle) * 0.7, 1.42, Math.sin(angle) * 0.7);
-      cakeGroup.add(cherry);
-    }
-
-    // E. 3 Candles & Flames
-    const candlePositions = [
-      { x: 0, z: 0 },
-      { x: -0.3, z: -0.3 },
-      { x: 0.3, z: -0.3 }
-    ];
-
-    candlePositions.forEach(pos => {
-      const candle = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.04, 0.04, 0.5, 16),
-        new THREE.MeshStandardMaterial({ color: 0xff3366 })
-      );
-      candle.position.set(pos.x, 1.6, pos.z);
-      cakeGroup.add(candle);
-
-      const flame = new THREE.Mesh(
-        new THREE.SphereGeometry(0.06, 16, 16),
-        new THREE.MeshBasicMaterial({ color: 0xffcc00 })
-      );
-      flame.position.set(pos.x, 1.9, pos.z);
-      cakeGroup.add(flame);
-    });
+    const flame = new THREE.Mesh(
+      new THREE.SphereGeometry(0.08, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xffcc00 })
+    );
+    flame.position.set(0, 1.55, -0.9);
+    cakeGroup.add(flame);
 
     scene.add(cakeGroup);
 
-    // 6. BIRTHDAY CARD
+    // 6. BIRTHDAY CARD (WITH CLICK TO ZOOM FEATURE)
+    let cardMesh;
     function createBirthdayCard() {
       const cardCanvas = document.createElement('canvas');
       cardCanvas.width = 512;
@@ -219,7 +191,7 @@
       const texture = new THREE.CanvasTexture(cardCanvas);
       const cardGeo = new THREE.PlaneGeometry(2.2, 1.4);
       const cardMat = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-      const cardMesh = new THREE.Mesh(cardGeo, cardMat);
+      cardMesh = new THREE.Mesh(cardGeo, cardMat);
 
       cardMesh.rotation.x = -Math.PI / 4;
       cardMesh.position.set(0, 0.2, 2.0);
@@ -228,8 +200,6 @@
     scene.add(createBirthdayCard());
 
     // 7. PHOTO FRAMES
-    const textureLoader = new THREE.TextureLoader();
-
     function createPhotoFrame(x, z, rotationY, imagePath) {
       const frameGroup = new THREE.Group();
 
@@ -254,18 +224,90 @@
     scene.add(createPhotoFrame(-2.5, 0, 0.4, './photo1.jpg'));
     scene.add(createPhotoFrame(2.5, 0, -0.4, './photo2.jpg'));
 
-    // 8. ANIMATION
+    // 8. FLOATING 3D BALLOONS
+    const balloons = [];
+    function createBalloon(x, z, colorHex) {
+      const balloonGroup = new THREE.Group();
+      
+      const geo = new THREE.SphereGeometry(0.45, 32, 32);
+      geo.scale(1, 1.25, 1);
+      const mat = new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.2, metalness: 0.1 });
+      const balloon = new THREE.Mesh(geo, mat);
+      balloonGroup.add(balloon);
+
+      const lineGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, -0.5, 0),
+        new THREE.Vector3(0, -2.5, 0)
+      ]);
+      const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
+      const string = new THREE.Line(lineGeo, lineMat);
+      balloonGroup.add(string);
+
+      balloonGroup.position.set(x, 2, z);
+      scene.add(balloonGroup);
+      balloons.push(balloonGroup);
+    }
+
+    createBalloon(-3.5, -1, 0xff0055);
+    createBalloon(-3.8, 1, 0xffbb00);
+    createBalloon(3.5, -1, 0x00ccff);
+    createBalloon(3.8, 1, 0xaa00ff);
+
+    // 9. RAYCASTER FOR INTERACTION
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let isFlownOut = false;
+
+    window.addEventListener('click', (event) => {
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+
+      const flameIntersects = raycaster.intersectObject(flame);
+      if (flameIntersects.length > 0 && flame.visible) {
+        flame.visible = false;
+        gsap.to(candleLight, { intensity: 0.2, duration: 1 });
+      }
+
+      const cardIntersects = raycaster.intersectObject(cardMesh);
+      if (cardIntersects.length > 0) {
+        if (!isFlownOut) {
+          gsap.to(camera.position, { x: 0, y: 1.5, z: 3.2, duration: 1.5, ease: "power2.inOut" });
+          gsap.to(controls.target, { x: 0, y: 0.2, z: 2.0, duration: 1.5, ease: "power2.inOut" });
+          isFlownOut = true;
+        } else {
+          gsap.to(camera.position, { x: 0, y: 4, z: 9, duration: 1.5, ease: "power2.inOut" });
+          gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1.5, ease: "power2.inOut" });
+          isFlownOut = false;
+        }
+      }
+    });
+
+    // 10. ANIMATION LOOP
     function animate() {
       requestAnimationFrame(animate);
-      candleLight.intensity = 2.5 + Math.random() * 0.5;
+
+      if (flame.visible) {
+        candleLight.intensity = 2.5 + Math.random() * 0.5;
+      }
+
+      balloons.forEach(b => {
+        b.position.y += Math.sin(Date.now() * 0.002 + b.position.x) * 0.005;
+      });
+
       controls.update();
       renderer.render(scene, camera);
     }
     animate();
 
+    // START BUTTON CLICK EVENT (PLAY AUDIO & START SCENE)
     startBtn.addEventListener('click', () => {
       document.getElementById('terminal-overlay').style.display = 'none';
       document.getElementById('instruction').style.opacity = '1';
+
+      // Play Background Music
+      bgMusic.play().catch(e => console.log("Audio play blocked by browser:", e));
 
       gsap.from(camera.position, {
         x: 0, y: 10, z: 18, duration: 2.5, ease: "power2.out"
