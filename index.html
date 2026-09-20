@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D Photo Printed Cake - Birthday Wish</title>
+  <title>3D Interactive Birthday Wish</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body, html { width: 100%; height: 100%; overflow: hidden; background-color: #000; font-family: 'Courier New', Courier, monospace; }
@@ -105,67 +105,85 @@
     table.position.y = -0.1;
     scene.add(table);
 
-    // Texture Loader
-    const textureLoader = new THREE.TextureLoader();
-
-    // 5. PHOTO PRINTED 3D BIRTHDAY CAKE
+    // 5. DECORATED 3D BIRTHDAY CAKE
     const cakeGroup = new THREE.Group();
 
-    // A. Plate
+    // A. Cake Plate
     const plateGeo = new THREE.CylinderGeometry(2.1, 1.9, 0.08, 32);
-    const plateMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 });
+    const plateMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.2, roughness: 0.1 });
     const plate = new THREE.Mesh(plateGeo, plateMat);
     plate.position.y = 0.04;
     cakeGroup.add(plate);
 
-    // B. Cake Body (Base Layer)
-    const cakeBodyGeo = new THREE.CylinderGeometry(1.6, 1.6, 0.8, 32);
-    const cakeSideMat = new THREE.MeshStandardMaterial({ color: 0xffe4e1, roughness: 0.3 }); // Side color (Pink)
-    const cakeTopTexture = textureLoader.load('./photo1.jpg'); // Top photo print
-    const cakeTopMat = new THREE.MeshBasicMaterial({ map: cakeTopTexture });
+    // B. Bottom Tier (Pink Layer)
+    const bottomTierGeo = new THREE.CylinderGeometry(1.6, 1.6, 0.7, 32);
+    const bottomTierMat = new THREE.MeshStandardMaterial({ color: 0xffb6c1, roughness: 0.3 });
+    const bottomTier = new THREE.Mesh(bottomTierGeo, bottomTierMat);
+    bottomTier.position.y = 0.42;
+    cakeGroup.add(bottomTier);
 
-    // Multi-material cylinder: Material index 0=Side, 1=Top (Printed Photo), 2=Bottom
-    const cakeMaterials = [cakeSideMat, cakeTopMat, cakeSideMat];
-    const cake = new THREE.Mesh(cakeBodyGeo, cakeMaterials);
-    cake.position.y = 0.48;
-    cakeGroup.add(cake);
-
-    // C. Cream Border Around The Printed Photo
-    for (let i = 0; i < 20; i++) {
-      const angle = (i / 20) * Math.PI * 2;
+    // Bottom Frosting Pearls
+    for (let i = 0; i < 18; i++) {
+      const angle = (i / 18) * Math.PI * 2;
       const pearl = new THREE.Mesh(
         new THREE.SphereGeometry(0.1, 16, 16),
         new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 })
-      );
-      pearl.position.set(Math.cos(angle) * 1.55, 0.88, Math.sin(angle) * 1.55);
-      cakeGroup.add(pearl);
-    }
-
-    // D. Bottom Border Frosting Pearls
-    for (let i = 0; i < 20; i++) {
-      const angle = (i / 20) * Math.PI * 2;
-      const pearl = new THREE.Mesh(
-        new THREE.SphereGeometry(0.08, 16, 16),
-        new THREE.MeshStandardMaterial({ color: 0xff69b4, roughness: 0.2 })
       );
       pearl.position.set(Math.cos(angle) * 1.6, 0.12, Math.sin(angle) * 1.6);
       cakeGroup.add(pearl);
     }
 
-    // E. Candle & Flame on top of Printed Cake
-    const candle = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.04, 0.04, 0.6, 16),
-      new THREE.MeshStandardMaterial({ color: 0xff3366 })
-    );
-    candle.position.set(0, 1.18, -0.9); // Placed slightly on the back so photo stays clear
-    cakeGroup.add(candle);
+    // C. Top Tier (Cream Layer)
+    const topTierGeo = new THREE.CylinderGeometry(1.1, 1.1, 0.6, 32);
+    const topTierMat = new THREE.MeshStandardMaterial({ color: 0xfff0f5, roughness: 0.3 });
+    const topTier = new THREE.Mesh(topTierGeo, topTierMat);
+    topTier.position.y = 1.05;
+    cakeGroup.add(topTier);
 
-    const flame = new THREE.Mesh(
-      new THREE.SphereGeometry(0.06, 16, 16),
-      new THREE.MeshBasicMaterial({ color: 0xffcc00 })
-    );
-    flame.position.set(0, 1.5, -0.9);
-    cakeGroup.add(flame);
+    // Middle Frosting Border
+    for (let i = 0; i < 14; i++) {
+      const angle = (i / 14) * Math.PI * 2;
+      const pearl = new THREE.Mesh(
+        new THREE.SphereGeometry(0.08, 16, 16),
+        new THREE.MeshStandardMaterial({ color: 0xff69b4, roughness: 0.2 })
+      );
+      pearl.position.set(Math.cos(angle) * 1.1, 0.77, Math.sin(angle) * 1.1);
+      cakeGroup.add(pearl);
+    }
+
+    // D. Strawberries / Cherries on Top
+    for (let i = 0; i < 6; i++) {
+      const angle = (i / 6) * Math.PI * 2;
+      const cherry = new THREE.Mesh(
+        new THREE.SphereGeometry(0.12, 16, 16),
+        new THREE.MeshStandardMaterial({ color: 0xd81b60, roughness: 0.1 })
+      );
+      cherry.position.set(Math.cos(angle) * 0.7, 1.42, Math.sin(angle) * 0.7);
+      cakeGroup.add(cherry);
+    }
+
+    // E. 3 Candles & Flames
+    const candlePositions = [
+      { x: 0, z: 0 },
+      { x: -0.3, z: -0.3 },
+      { x: 0.3, z: -0.3 }
+    ];
+
+    candlePositions.forEach(pos => {
+      const candle = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.04, 0.04, 0.5, 16),
+        new THREE.MeshStandardMaterial({ color: 0xff3366 })
+      );
+      candle.position.set(pos.x, 1.6, pos.z);
+      cakeGroup.add(candle);
+
+      const flame = new THREE.Mesh(
+        new THREE.SphereGeometry(0.06, 16, 16),
+        new THREE.MeshBasicMaterial({ color: 0xffcc00 })
+      );
+      flame.position.set(pos.x, 1.9, pos.z);
+      cakeGroup.add(flame);
+    });
 
     scene.add(cakeGroup);
 
@@ -210,6 +228,8 @@
     scene.add(createBirthdayCard());
 
     // 7. PHOTO FRAMES
+    const textureLoader = new THREE.TextureLoader();
+
     function createPhotoFrame(x, z, rotationY, imagePath) {
       const frameGroup = new THREE.Group();
 
