@@ -49,6 +49,7 @@
       font-weight: bold;
       cursor: pointer;
       display: none;
+      border-radius: 4px;
     }
 
     /* 3D Canvas Container */
@@ -64,7 +65,7 @@
       left: 50%;
       transform: translateX(-50%);
       color: #ffffff;
-      font-size: 1rem;
+      font-size: 0.9rem;
       letter-spacing: 2px;
       text-transform: uppercase;
       opacity: 0;
@@ -77,15 +78,19 @@
 </head>
 <body>
 
+  <!-- Typewriter Overlay -->
   <div id="terminal-overlay">
     <div id="typed-text" class="line"></div>
     <button id="start-btn">Click to View Experience 🎂</button>
   </div>
 
+  <!-- Instruction Text -->
   <div id="instruction">Use mouse to rotate & zoom around the scene</div>
 
+  <!-- WebGL Canvas -->
   <div id="canvas-container"></div>
 
+  <!-- Required Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -128,7 +133,6 @@
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
 
-    // Add background fog for atmosphere
     scene.fog = new THREE.FogExp2(0x050508, 0.05);
 
     const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -143,24 +147,22 @@
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.maxPolarAngle = Math.PI / 2 - 0.05; // Prevent camera from going below floor
+    controls.maxPolarAngle = Math.PI / 2 - 0.05;
 
     // --- 3. LIGHTING ---
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
     scene.add(ambientLight);
 
-    // Warm Candle/Center Light
-    const candleLight = new THREE.PointLight(0xffaa44, 2, 15);
+    const candleLight = new THREE.PointLight(0xffaa44, 2.5, 15);
     candleLight.position.set(0, 1.8, 0);
     candleLight.castShadow = true;
     scene.add(candleLight);
 
-    // Subtle City Background Glow Light
     const cityLight = new THREE.DirectionalLight(0x334466, 0.8);
     cityLight.position.set(0, 10, -20);
     scene.add(cityLight);
 
-    // --- 4. CREATING THE OBJECTS ---
+    // --- 4. CREATING OBJECTS ---
 
     // Tabletop
     const tableGeo = new THREE.BoxGeometry(10, 0.2, 8);
@@ -195,29 +197,84 @@
 
     scene.add(cakeGroup);
 
-    // Photo Frames
-    function createFrame(x, z, rotationY) {
+    // Birthday Card
+    function createBirthdayCard() {
+      const cardCanvas = document.createElement('canvas');
+      cardCanvas.width = 512;
+      cardCanvas.height = 340;
+      const ctx = cardCanvas.getContext('2d');
+
+      ctx.fillStyle = '#fff0f5';
+      ctx.fillRect(0, 0, cardCanvas.width, cardCanvas.height);
+
+      ctx.strokeStyle = '#ff69b4';
+      ctx.lineWidth = 10;
+      ctx.strokeRect(10, 10, cardCanvas.width - 20, cardCanvas.height - 20);
+
+      ctx.fillStyle = '#d81b60';
+      ctx.font = 'bold 32px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('HAPPY BIRTHDAY! 🎈', cardCanvas.width / 2, 70);
+
+      ctx.fillStyle = '#333333';
+      ctx.font = '20px Arial';
+      ctx.fillText('Wishing you a day filled with', cardCanvas.width / 2, 140);
+      ctx.fillText('happiness, joy and success.', cardCanvas.width / 2, 180);
+      ctx.fillText('May all your dreams come true! ✨', cardCanvas.width / 2, 220);
+
+      ctx.fillStyle = '#ff1493';
+      ctx.font = 'italic bold 22px Arial';
+      ctx.fillText('— Best Wishes ❤️', cardCanvas.width / 2, 280);
+
+      const texture = new THREE.CanvasTexture(cardCanvas);
+      const cardGeo = new THREE.PlaneGeometry(2.4, 1.6);
+      const cardMat = new THREE.MeshStandardMaterial({ map: texture, side: THREE.DoubleSide });
+      const cardMesh = new THREE.Mesh(cardGeo, cardMat);
+
+      cardMesh.rotation.x = -Math.PI / 3;
+      cardMesh.position.set(0, 0.15, 2.2);
+      return cardMesh;
+    }
+
+    scene.add(createBirthdayCard());
+
+    // --- 5. PHOTO FRAMES WITH IMAGE TEXTURES ---
+    const textureLoader = new THREE.TextureLoader();
+
+    function createPhotoFrame(x, z, rotationY, imagePath) {
       const frameGroup = new THREE.Group();
-      const outerGeo = new THREE.BoxGeometry(1.2, 1.6, 0.1);
-      const outerMat = new THREE.MeshStandardMaterial({ color: 0xd4af37 }); // Gold
+
+      // Golden Outer Frame
+      const outerGeo = new THREE.BoxGeometry(1.4, 1.8, 0.1);
+      const outerMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.5, roughness: 0.3 });
       const frameOuter = new THREE.Mesh(outerGeo, outerMat);
-      
-      const photoGeo = new THREE.PlaneGeometry(1, 1.4);
-      const photoMat = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+
+      // Photo Mesh with loaded image texture
+      const photoGeo = new THREE.PlaneGeometry(1.2, 1.6);
+      let photoMat;
+
+      if (imagePath) {
+        const photoTexture = textureLoader.load(imagePath);
+        photoMat = new THREE.MeshBasicMaterial({ map: photoTexture });
+      } else {
+        photoMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee });
+      }
+
       const photo = new THREE.Mesh(photoGeo, photoMat);
       photo.position.z = 0.06;
 
       frameGroup.add(frameOuter);
       frameGroup.add(photo);
-      frameGroup.position.set(x, 0.8, z);
+      frameGroup.position.set(x, 0.9, z);
       frameGroup.rotation.y = rotationY;
       return frameGroup;
     }
 
-    scene.add(createFrame(-2.5, 0, 0.4));
-    scene.add(createFrame(2.5, 0, -0.4));
+    // বাম ও ডান পাশের ফ্রেমে তোমার ছবি ২টির ফাইল পাথ (File path/URL) বসানো হয়েছে
+    scene.add(createPhotoFrame(-2.5, 0, 0.4, 'photo1.jpg'));
+    scene.add(createPhotoFrame(2.5, 0, -0.4, 'photo2.jpg'));
 
-    // Simple City Skyline Backdrop
+    // City Backdrop
     const cityGroup = new THREE.Group();
     for (let i = -15; i < 15; i += 1.5) {
       const height = Math.random() * 8 + 4;
@@ -229,12 +286,12 @@
     }
     scene.add(cityGroup);
 
-    // --- 5. ANIMATION & INTERACTION ---
+    // --- 6. ANIMATION & INTERACTION ---
     function animate() {
       requestAnimationFrame(animate);
 
-      // Flame flickering effect
-      candleLight.intensity = 1.8 + Math.random() * 0.4;
+      // Flame flickering
+      candleLight.intensity = 2.0 + Math.random() * 0.5;
       
       controls.update();
       renderer.render(scene, camera);
@@ -246,7 +303,6 @@
       document.getElementById('terminal-overlay').style.display = 'none';
       document.getElementById('instruction').style.opacity = '1';
 
-      // GSAP Camera zoom animation
       gsap.from(camera.position, {
         x: 0,
         y: 12,
@@ -265,4 +321,3 @@
   </script>
 </body>
 </html>
-
