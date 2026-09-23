@@ -1,339 +1,123 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Happy Birthday othoy!</title>
+  <title>Happy Birthday Othoy</title>
   <style>
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
 
     body {
-      background-color: #0d0211;
-      color: #fff;
+      background-color: #fdf5e6;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       overflow: hidden;
-      perspective: 1000px;
     }
 
-    /* Container holding the 3D carousel */
-    .scene {
-      width: 300px;
-      height: 400px;
+    .container {
+      text-align: center;
       position: relative;
-      perspective: 1000px;
     }
 
-    .carousel {
-      width: 100%;
-      height: 100%;
+    .title {
+      font-size: 3rem;
+      color: #e63946;
+      margin-top: 20px;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    .highlight {
+      font-size: 3.5rem;
+      color: #d62828;
+    }
+
+    .subtitle, .wish {
+      font-size: 1.1rem;
+      color: #555;
+      font-style: italic;
+    }
+
+    .heart {
       position: absolute;
-      transform-style: preserve-3d;
-      transition: transform 0.1s ease-out;
-      animation: rotate3d 20s infinite linear;
+      width: 15px;
+      height: 15px;
+      background-color: #ff4d6d;
+      transform: rotate(-45deg);
+      animation: heartBeat 2.6s ease-in-out infinite;
+      transform-origin: 50% 50%;
     }
 
-    @keyframes rotate3d {
-      from { transform: rotateY(0deg) rotateX(-10deg); }
-      to { transform: rotateY(360deg) rotateX(-10deg); }
-    }
-
-    .card {
+    .heart::before,
+    .heart::after {
+      content: "";
       position: absolute;
-      width: 140px;
-      height: 190px;
-      left: 80px;
-      top: 105px;
-      border: 2px solid rgba(255, 192, 203, 0.6);
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 0 15px rgba(255, 105, 180, 0.5);
-      background: #1a0826;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-
-    .card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .card-text {
-      position: absolute;
-      bottom: 10px;
-      background: rgba(0, 0, 0, 0.6);
-      width: 100%;
-      text-align: center;
-      padding: 4px 0;
-      font-size: 14px;
-      font-weight: bold;
-      color: #ffb6c1;
-    }
-
-    /* Center Text inside Carousel */
-    .center-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      pointer-events: none;
-      text-shadow: 0 0 10px #ff69b4, 0 0 20px #ff69b4;
-    }
-
-    .center-text h1 {
-      font-size: 28px;
-      color: #fff;
-    }
-
-    .center-text h2 {
-      font-size: 36px;
-      color: #ff69b4;
-    }
-
-    /* Interactive Heart Button */
-    .heart-btn {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 50px;
-      height: 50px;
-      background: #ff4081;
+      width: 15px;
+      height: 15px;
+      background-color: #ff4d6d;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      cursor: pointer;
-      box-shadow: 0 0 15px #ff4081;
-      border: none;
-      color: white;
-      z-index: 100;
     }
 
-    /* Modal Popups */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
+    .heart::before {
+      top: -7.5px;
       left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-      z-index: 1000;
     }
 
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .modal-card {
-      background: #2a083b;
-      border: 2px solid #ff69b4;
-      border-radius: 20px;
-      padding: 25px;
-      max-width: 350px;
-      text-align: center;
-      box-shadow: 0 0 25px rgba(255, 105, 180, 0.8);
-      position: relative;
-    }
-
-    .modal-card h3 {
-      color: #ffb6c1;
-      margin-bottom: 12px;
-      font-size: 20px;
-    }
-
-    .modal-card p {
-      font-size: 14px;
-      line-height: 1.5;
-      color: #ebd0f5;
-      margin-bottom: 20px;
-    }
-
-    .btn-action {
-      background: linear-gradient(45deg, #ff4081, #ff69b4);
-      border: none;
-      padding: 10px 20px;
-      color: white;
-      border-radius: 20px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 0 10px #ff4081;
-    }
-
-    .close-btn {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      background: none;
-      border: none;
-      color: #fff;
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    /* Floating Hearts/Flowers Canvas */
-    canvas {
-      position: fixed;
+    .heart::after {
+      left: 7.5px;
       top: 0;
-      left: 0;
-      pointer-events: none;
-      z-index: 1;
+    }
+
+    @keyframes heartBeat {
+      0% { transform: scale(1) rotate(-45deg); }
+      50% { transform: scale(1.2) rotate(-45deg); }
+      100% { transform: scale(1) rotate(-45deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
 
-  <canvas id="heartCanvas"></canvas>
-
-  <div class="scene">
-    <div class="center-text">
-      <h1>Happy</h1>
-      <h2>Birthday</h2>
-      <h2>othoy</h2>
-    </div>
-
-    <div class="carousel" id="carousel">
-      <!-- Cards populated via JS -->
-    </div>
-  </div>
-
-  <button class="heart-btn" onclick="openModal('giftModal')">🎁</button>
-
-  <!-- Gift Popup Modal -->
-  <div class="modal-overlay" id="giftModal">
-    <div class="modal-card">
-      <button class="close-btn" onclick="closeModal('giftModal')">✖</button>
-      <h3>🎁 Surprise Gift for othoy!</h3>
-      <p>You unlocked othoy's birthday gift! 💖 Here's a box full of happiness, good health, great success, and unforgettable adventures for the year ahead! ✨</p>
-      <button class="btn-action" onclick="openModal('msgModal'); closeModal('giftModal');">Unwrap Magic ✨</button>
-    </div>
-  </div>
-
-  <!-- Special Message Modal -->
-  <div class="modal-overlay" id="msgModal">
-    <div class="modal-card">
-      <button class="close-btn" onclick="closeModal('msgModal')">✖</button>
-      <h3>📩 Message for othoy</h3>
-      <p>Dearest othoy,<br><br>On this extra special day, wishing you a year filled with endless smiles, warmth, and magical moments! You bring so much joy and light to everyone around you. May all your dreams come true! 🌸💖✨</p>
-      <button class="btn-action" onclick="closeModal('msgModal')">Send Love ❤️</button>
+  <div class="container">
+    <div id="heart-tree"></div>
+    <div class="text-container">
+      <p class="subtitle">a little something, for you</p>
+      <h1 class="title">Happy Birthday <br><span class="highlight">Athoy</span></h1>
+      <p class="wish">here's to a year that blooms!</p>
     </div>
   </div>
 
   <script>
-    // 3D Carousel Setup
-    const carousel = document.getElementById('carousel');
-    
-    // Array of your images
-    const images = [
-      '30996.jpg',
-      '30994.jpg'
-    ];
+    const container = document.getElementById('heart-tree');
 
-    const totalCards = 10;
-    const radius = 260; // Radius of 3D cylinder
-
-    for (let i = 0; i < totalCards; i++) {
-      const card = document.createElement('div');
-      card.className = 'card';
-      
-      const angle = (i / totalCards) * 360;
-      card.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
-      
-      // Rotates through your provided images array
-      const imgSrc = images[i % images.length];
-
-      card.innerHTML = `
-        <img src="${imgSrc}" alt="othoy photo">
-        <div class="card-text">othoy</div>
-      `;
-      
-      card.addEventListener('click', () => {
-        openModal('msgModal');
-      });
-
-      carousel.appendChild(card);
-    }
-
-    // Modal Control Functions
-    function openModal(id) {
-      document.getElementById(id).classList.add('active');
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.remove('active');
-    }
-
-    // Background Particles Effect
-    const canvas = document.getElementById('heartCanvas');
-    const ctx = canvas.getContext('2d');
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    const particles = [];
-    class HeartParticle {
-      constructor() {
-        this.reset();
-      }
-      reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = canvas.height + 20;
-        this.size = Math.random() * 12 + 6;
-        this.speedY = Math.random() * 1.5 + 0.5;
-        this.speedX = (Math.random() - 0.5) * 0.8;
-        this.opacity = Math.random() * 0.7 + 0.3;
-      }
-      update() {
-        this.y -= this.speedY;
-        this.x += this.speedX;
-        if (this.y < -20) this.reset();
-      }
-      draw() {
-        ctx.save();
-        ctx.globalAlpha = this.opacity;
-        ctx.fillStyle = '#ff69b4';
-        ctx.font = `${this.size}px serif`;
-        ctx.fillText('🌸', this.x, this.y);
-        ctx.restore();
+    function createHeartTree() {
+      for (let i = 0; i < 40; i++) {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        
+        const x = Math.random() * 200 - 100;
+        const y = Math.random() * -150 - 50;
+        
+        heart.style.left = `calc(50% + ${x}px)`;
+        heart.style.top = `calc(50% + ${y}px)`;
+        heart.style.animationDelay = `${Math.random() * 2}s`;
+        
+        container.appendChild(heart);
       }
     }
 
-    for (let i = 0; i < 35; i++) {
-      particles.push(new HeartParticle());
-    }
-
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        p.update();
-        p.draw();
-      });
-      requestAnimationFrame(animate);
-    }
-    animate();
+    createHeartTree();
   </script>
+
 </body>
 </html>
